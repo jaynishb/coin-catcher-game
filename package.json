@@ -1,8 +1,7 @@
 {
-  "name": "breakout-game",
+  "name": "coin-catcher-game",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://rodionchachura.github.io/breakout-game",
   "dependencies": {
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
