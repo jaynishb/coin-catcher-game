@@ -1,12 +1,16 @@
 import React, { useEffect, useReducer } from 'react'
 
 import { LEVELS } from '../game/levels'
-import { MOVEMENT, getNewGameState, getGameStateFromLevel } from '../game/core'
+import { MOVEMENT, getNewGameState, getGameStateFromLevel, BALL_RADIUS } from '../game/core'
 import { registerListener } from '../utils'
 
 import Level from './level'
 import Paddle from './paddle'
 import Ball from './ball'
+import Bomb from './bomb'
+import Lives from './lives'
+import GameOver from './game-over'
+import Vector from '../game/vector'
 
 const MOVEMENT_KEYS = {
   LEFT: [65, 37],
@@ -90,7 +94,11 @@ const HANDLER = {
     const { game: newGame, level } = getNewGameState(state, state.movement, time - state.time)
     const newState = { ...state, level, time }
     return { ...newState, game: newGame }
-  }
+  },
+
+  [ACTION.RESTART]: (state, containerSize) => {
+    return { ...getInitialState(containerSize) }
+  },
 }
 
 const reducer = (state, { type, payload }) => {
@@ -110,6 +118,7 @@ export default (containerSize) => {
       blocks,
       paddle,
       balls,
+      bombs,
       size: {
         width,
         height
@@ -134,14 +143,26 @@ export default (containerSize) => {
       unregisterKeyup()
     }
   }, [])
+
+  const restart = (containerSize) => act(ACTION.GAME_OVER,containerSize)
   const viewWidth = projectDistance(width)
-  const unit = projectDistance(balls[0].radius)
+  const unit = projectDistance(BALL_RADIUS)
+
+  const isGameOver = lives <= 0;
+
+  if (isGameOver) {
+    // gameOver(containerSize)
+  }
+
   return (
     <svg width={'100%'} height={'100vh'} className='scene'>
 
       <Level unit={unit} level={level} />
+      {!isGameOver && <Lives containerWidth={viewWidth} unit={unit} lives={lives} />}
+      {isGameOver && <GameOver {...new Vector(containerSize.center.x, containerSize.center.y)} />}
       <Paddle width={projectDistance(paddle.width)} height={projectDistance(paddle.height)} {...projectVector(paddle.position)} />
-      {balls.map((ball, index) => <Ball key={index} {...projectVector(ball.center)} radius={unit} />)}
+      {!isGameOver && balls.map((ball, index) => <Ball key={index} {...projectVector(ball.center)} radius={unit} />)}
+      {!isGameOver && bombs.map((bomb, index) => <Bomb key={index} {...projectVector(bomb.center)} radius={unit} />)}
     </svg>
   )
 }

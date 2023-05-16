@@ -14,3 +14,10 @@ export const LEVELS = [
     blocks: getBlocks(2, 12)
   }
 ]
+
+export const BombLevel = {
+  20: 1,
+  40: 2,
+  60: 3,
+  90: 4
+}
