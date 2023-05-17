@@ -1,13 +1,15 @@
 import Vector from './vector'
-import { flatten, getRandomFrom, withoutElement, updateElement, randomRange } from '../utils'
+import { flatten, getRandomFrom, withoutElement, updateElement, randomRange, getRange } from '../utils'
 import { BombLevel } from './levels'
 
 const BLOCK_HEIGHT = 5
 const PADDLE_AREA = 1 / 3
 const PADDLE_HEIGHT = BLOCK_HEIGHT
 export const BALL_RADIUS = 1
-const DISTANCE_IN_MS = 0.02
-export const WIND = 0.0005
+const PADDEL_DISTANCE_IN_MS = 0.04
+const BALL_DISTANCE_IN_MS = 0.02
+const BOMB_DISTANCE_IN_MS = 0.03
+export const WIND = 0.003
 
 export const MOVEMENT = {
   LEFT: 'LEFT',
@@ -20,8 +22,13 @@ const UP = new Vector(0, -1)
 const DOWN = new Vector(0, 1)
 
 const LEFT_UP = LEFT.add(UP).normalize()
+const LEFT_DOWN = LEFT.add(DOWN).normalize()
 const RIGHT_UP = RIGHT.add(UP).normalize()
 const RIGHT_DOWN = RIGHT.add(DOWN).normalize()
+
+const directions = [DOWN, RIGHT_DOWN, LEFT_DOWN]
+
+const getDirectionIndex = () => Math.floor(Math.random() * (directions.length - 1))
 
 export const getInitialPaddleAndBall = (width, height, paddleWidth) => {
   const paddleY = height - PADDLE_HEIGHT
@@ -30,17 +37,8 @@ export const getInitialPaddleAndBall = (width, height, paddleWidth) => {
     width: paddleWidth,
     height: PADDLE_HEIGHT
   }
-  const balls = Array.from(Array(3)).map(()=>({
-    center: new Vector(randomRange(10, width -10), 5),
-    radius: BALL_RADIUS,
-    direction: DOWN
-  }))
-
-  const bombs = Array.from(Array(0)).map(()=>({
-    center: new Vector(randomRange(10, width -10), 5),
-    radius: BALL_RADIUS,
-    direction: DOWN
-  }))
+  const balls = Array.from(Array(3)).map(()=> getInitialBall())
+  const bombs = Array.from(Array(0)).map(()=> getInitialBomb())
 
   return {
     paddle,
@@ -53,7 +51,7 @@ const getInitialBall = (width) => {
   return {
     center: new Vector(randomRange(10, width -10), 5),
     radius: BALL_RADIUS,
-    direction: DOWN
+    direction: directions[getDirectionIndex()]
   }
 }
 
@@ -61,7 +59,7 @@ const getInitialBomb = (width) => {
   return {
     center: new Vector(randomRange(10, width -10), 5),
     radius: BALL_RADIUS,
-    direction: DOWN
+    direction: directions[getDirectionIndex()]
   }
 }
 
@@ -132,8 +130,12 @@ const getAdjustedVector = (normal, vector, minAngle = 15) => {
 export const getNewGameState = (state, movement, timespan) => {
   let { game, level } = state;
   let { size, speed, lives } = game
-  const distance = timespan * DISTANCE_IN_MS * speed
-  const paddle = getNewPaddle(game.paddle, size, distance, movement)
+
+  const getDistance = (DISTANCE_IN_MS) => {
+    return timespan * DISTANCE_IN_MS * speed
+  }
+
+  const paddle = getNewPaddle(game.paddle, size, getDistance(PADDEL_DISTANCE_IN_MS), movement)
   const withDirection = (normal, oldDirection) => {
     const distorted = getDistortedDirection(oldDirection.reflect(normal))
     const direction = getAdjustedVector(normal, distorted)
@@ -148,7 +150,7 @@ export const getNewGameState = (state, movement, timespan) => {
   let newBalls = game.balls.map((ball) => {
     const { radius } = ball
     const oldDirection = ball.direction
-    const newBallCenter = ball.center.add(oldDirection.scaleBy(distance))
+    const newBallCenter = ball.center.add(oldDirection.scaleBy(getDistance(BALL_DISTANCE_IN_MS)))
     const ballBottom = newBallCenter.y + radius
     const ballLeft = newBallCenter.x - radius
     const ballRight = newBallCenter.x + radius
@@ -169,7 +171,7 @@ export const getNewGameState = (state, movement, timespan) => {
   let newBombs = game.bombs.map((bomb) => {
     const { radius } = bomb
     const oldDirection = bomb.direction
-    const newBombCenter = bomb.center.add(oldDirection.scaleBy(distance))
+    const newBombCenter = bomb.center.add(oldDirection.scaleBy(getDistance(BOMB_DISTANCE_IN_MS)))
     const bombBottom = newBombCenter.y + radius
     const bombLeft = newBombCenter.x - radius
     const bombRight = newBombCenter.x + radius

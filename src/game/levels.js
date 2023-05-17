@@ -16,8 +16,8 @@ export const LEVELS = [
 ]
 
 export const BombLevel = {
-  20: 1,
-  40: 2,
-  60: 3,
-  90: 4
+  50: 1,
+  150: 2,
+  250: 3,
+  300: 4
 }
