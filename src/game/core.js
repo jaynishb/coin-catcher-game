@@ -145,7 +145,7 @@ export const getNewGameState = (state, movement, timespan) => {
   const paddleLeft = paddle.position.x
   const paddleRight = paddleLeft + paddle.width
   const paddleTop = paddle.position.y
-
+  const paddleBottom = paddle.position.y + paddle.height
 
   let newBalls = game.balls.map((ball) => {
     const { radius } = ball
@@ -156,8 +156,7 @@ export const getNewGameState = (state, movement, timespan) => {
     const ballRight = newBallCenter.x + radius
     const ballTop = newBallCenter.y - radius
     const ballGoingDown = Math.abs(UP.angleBetween(oldDirection)) > 90
-    const hitPaddle = ballGoingDown && ballBottom >= paddleTop && ballRight >= paddleLeft && ballLeft <= paddleRight;
-
+    const hitPaddle = ballGoingDown && ballBottom >= paddleTop && ballRight >= paddleLeft && ballLeft <= paddleRight && ballTop <= paddleBottom;
     if (hitPaddle || ballBottom > size.width) {
       level = hitPaddle ? level +1 : level
       return getInitialBall(size.width)
@@ -178,8 +177,7 @@ export const getNewGameState = (state, movement, timespan) => {
     const bombTop = newBombCenter.y - radius
 
     const bombGoingDown = Math.abs(UP.angleBetween(oldDirection)) > 90
-    const hitPaddle = bombGoingDown && bombBottom >= paddleTop && bombRight >= paddleLeft && bombLeft <= paddleRight;
-
+    const hitPaddle = bombGoingDown && bombBottom >= paddleTop && bombRight >= paddleLeft && bombLeft <= paddleRight && bombTop <= paddleBottom;
     if (hitPaddle || bombBottom > size.width) {
       lives = hitPaddle ? lives - 1 : lives
       return getInitialBomb(size.width)
