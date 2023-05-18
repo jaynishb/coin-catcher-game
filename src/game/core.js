@@ -2,7 +2,7 @@ import Vector from './vector'
 import { flatten, getRandomFrom, withoutElement, updateElement, randomRange, getRange } from '../utils'
 import { BombLevel, InitialLevel, LEVELS } from './levels'
 
-const BLOCK_HEIGHT = 5
+const BLOCK_HEIGHT = 4.5
 const PADDLE_AREA = 1 / 3
 const PADDLE_HEIGHT = BLOCK_HEIGHT
 export const BALL_RADIUS = 1
