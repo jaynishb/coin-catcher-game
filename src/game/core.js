@@ -52,6 +52,7 @@ export const getConfigByLevel = (collected) => {
   levelsScores.reverse().forEach((levelScore) => {
     if (collected > +levelScore) {
       levelConfig = LEVELS[levelScore];
+      return levelConfig;
     }
   })
   return levelConfig
