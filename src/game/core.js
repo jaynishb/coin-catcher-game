@@ -174,6 +174,8 @@ export const getNewGameState = (state, movement, timespan) => {
     }
 
     if (ballTop <= 0) return { ...ball, direction: withDirection(DOWN, oldDirection) }
+    if (ballLeft <= 0) return { ...ball, direction: withDirection(RIGHT, oldDirection) }
+    if (ballRight >= size.width) return { ...ball, direction: withDirection(LEFT, oldDirection) }
     
     return { ...ball, center: newBallCenter }
   })
@@ -195,6 +197,8 @@ export const getNewGameState = (state, movement, timespan) => {
     }
 
     if (bombTop <= 0) return { ...bomb, direction: withDirection(DOWN, oldDirection) }
+    if (bombLeft <= 0) return { ...bomb, direction: withDirection(RIGHT, oldDirection) }
+    if (bombRight >= size.width) return { ...bomb, direction: withDirection(LEFT, oldDirection) }
     
     return { ...bomb, center: newBombCenter }
   })
