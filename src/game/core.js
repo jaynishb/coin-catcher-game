@@ -1,14 +1,12 @@
 import Vector from './vector'
 import { flatten, getRandomFrom, withoutElement, updateElement, randomRange, getRange } from '../utils'
-import { BombLevel } from './levels'
+import { BombLevel, LEVELS } from './levels'
 
 const BLOCK_HEIGHT = 5
 const PADDLE_AREA = 1 / 3
 const PADDLE_HEIGHT = BLOCK_HEIGHT
 export const BALL_RADIUS = 1
-const PADDEL_DISTANCE_IN_MS = 0.04
-const BALL_DISTANCE_IN_MS = 0.02
-const BOMB_DISTANCE_IN_MS = 0.03
+const DISTANCE_IN_MS = 0.02
 export const WIND = 0.003
 
 export const MOVEMENT = {
@@ -30,21 +28,33 @@ const directions = [DOWN, RIGHT_DOWN, LEFT_DOWN]
 
 const getDirectionIndex = () => Math.floor(Math.random() * (directions.length - 1))
 
-export const getInitialPaddleAndBall = (width, height, paddleWidth) => {
+export const getInitialPaddleAndBall = ({width, height}, level) => {
+  const { numberOfCoins, numberOfBombs, paddleWidth } = getConfigByLevel(level)
   const paddleY = height - PADDLE_HEIGHT
   const paddle = {
     position: new Vector((width - paddleWidth) , paddleY),
     width: paddleWidth,
     height: PADDLE_HEIGHT
   }
-  const balls = Array.from(Array(3)).map(()=> getInitialBall())
-  const bombs = Array.from(Array(0)).map(()=> getInitialBomb())
+  const balls = Array.from(Array(numberOfCoins)).map(()=> getInitialBall())
+  const bombs = Array.from(Array(numberOfBombs)).map(()=> getInitialBomb())
 
   return {
     paddle,
     balls,
     bombs
   }
+}
+
+export const getConfigByLevel = (collected) => {
+  const levelsScores = Object.keys(LEVELS);
+  let levelConfig =  
+  levelsScores.reverse().forEach((levelScore) => {
+    if (collected > +levelScore) {
+      levelConfig = LEVELS[levelScore];
+    }
+  })
+  return levelConfig
 }
 
 const getInitialBall = (width) => {
@@ -63,15 +73,14 @@ const getInitialBomb = (width) => {
   }
 }
 
-export const getGameStateFromLevel = ({ lives, paddleWidth, speed }, containerSize) => {
-
+export const getGameStateFromLevel = ({ lives, paddleWidth, speed, level }, containerSize) => {
   const size = {
     width: Math.ceil(containerSize.width / 20) + 1,
     height: Math.ceil(containerSize.height / 20)
   }
   return {
     size,
-    ...getInitialPaddleAndBall(size.width, size.height, paddleWidth),
+    ...getInitialPaddleAndBall(size, level),
     lives,
     speed
   }
@@ -129,13 +138,15 @@ const getAdjustedVector = (normal, vector, minAngle = 15) => {
 
 export const getNewGameState = (state, movement, timespan) => {
   let { game, level } = state;
-  let { size, speed, lives } = game
+  let { size, lives } = game
 
-  const getDistance = (DISTANCE_IN_MS) => {
+  const { ballSpeed, paddleSpeed, bombSpeed, numberOfBombs, numberOfCoins } = getConfigByLevel(level)
+
+  const getDistance = (speed) => {
     return timespan * DISTANCE_IN_MS * speed
   }
 
-  const paddle = getNewPaddle(game.paddle, size, getDistance(PADDEL_DISTANCE_IN_MS), movement)
+  const paddle = getNewPaddle(game.paddle, size, getDistance(paddleSpeed), movement)
   const withDirection = (normal, oldDirection) => {
     const distorted = getDistortedDirection(oldDirection.reflect(normal))
     const direction = getAdjustedVector(normal, distorted)
@@ -150,7 +161,7 @@ export const getNewGameState = (state, movement, timespan) => {
   let newBalls = game.balls.map((ball) => {
     const { radius } = ball
     const oldDirection = ball.direction
-    const newBallCenter = ball.center.add(oldDirection.scaleBy(getDistance(BALL_DISTANCE_IN_MS)))
+    const newBallCenter = ball.center.add(oldDirection.scaleBy(getDistance(ballSpeed)))
     const ballBottom = newBallCenter.y + radius
     const ballLeft = newBallCenter.x - radius
     const ballRight = newBallCenter.x + radius
@@ -170,7 +181,7 @@ export const getNewGameState = (state, movement, timespan) => {
   let newBombs = game.bombs.map((bomb) => {
     const { radius } = bomb
     const oldDirection = bomb.direction
-    const newBombCenter = bomb.center.add(oldDirection.scaleBy(getDistance(BOMB_DISTANCE_IN_MS)))
+    const newBombCenter = bomb.center.add(oldDirection.scaleBy(getDistance(bombSpeed)))
     const bombBottom = newBombCenter.y + radius
     const bombLeft = newBombCenter.x - radius
     const bombRight = newBombCenter.x + radius
@@ -187,24 +198,18 @@ export const getNewGameState = (state, movement, timespan) => {
     
     return { ...bomb, center: newBombCenter }
   })
+  if (newBombs.length < numberOfBombs) {
+    newBombs = [...newBombs, ...Array.from(Array(numberOfBombs - newBombs.length)).map(()=> getInitialBomb())]
+  }
 
-  let requiredBombs = 0;
-
-  Object.keys(BombLevel).reverse().map((bombLevel) => {
-    if (level > +bombLevel) {
-      requiredBombs = BombLevel[bombLevel];
-    }
-  })
-
-  if (newBombs.length < requiredBombs) {
-    newBombs = [...newBombs, ...Array.from(Array(requiredBombs - newBombs.length)).map(()=> getInitialBomb())]
+  if (newBalls.length < numberOfCoins) {
+    newBalls = [...newBalls, ...Array.from(Array(numberOfCoins - newBalls.length)).map(()=> getInitialBomb())]
   }
 
   if (lives <= 0) {
     newBombs = [];
     newBalls = [];
   }
-
   return { ...state, level, game: { ...game, paddle, balls: newBalls, bombs: newBombs, lives } }
 }
 

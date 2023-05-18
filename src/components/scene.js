@@ -1,7 +1,6 @@
 import React, { useEffect, useReducer } from 'react'
 
-import { LEVELS } from '../game/levels'
-import { MOVEMENT, getNewGameState, getGameStateFromLevel, BALL_RADIUS } from '../game/core'
+import { MOVEMENT, getNewGameState, getGameStateFromLevel, BALL_RADIUS, getConfigByLevel } from '../game/core'
 import { registerListener } from '../utils'
 
 import Level from './level'
@@ -41,7 +40,7 @@ const getProjectors = (containerSize, gameSize) => {
 
 const getInitialState = containerSize => {
   const level = getInitialLevel()
-  const game = getGameStateFromLevel(LEVELS[level], containerSize)
+  const game = getGameStateFromLevel(getConfigByLevel(level), containerSize)
   const { projectDistance, projectVector } = getProjectors(containerSize, game.size)
   return {
     level,
@@ -115,7 +114,6 @@ export default (containerSize) => {
     projectVector,
     level,
     game: {
-      blocks,
       paddle,
       balls,
       bombs,
