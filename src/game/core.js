@@ -49,12 +49,13 @@ export const getInitialPaddleAndBall = ({width, height}, level) => {
 export const getConfigByLevel = (collected) => {
   const levelsScores = Object.keys(LEVELS);
   let levelConfig = InitialLevel
-  levelsScores.reverse().forEach((levelScore) => {
+
+  for (var i = levelsScores.length - 1; i >= 0; i--) {
+    const levelScore = levelsScores[i]
     if (collected > +levelScore) {
-      levelConfig = LEVELS[levelScore];
-      return levelConfig;
-    }
-  })
+      return LEVELS[levelScore]
+    };
+  }
   return levelConfig
 }
 
@@ -210,7 +211,6 @@ export const getNewGameState = (state, movement, timespan) => {
   if (newBalls.length < numberOfCoins) {
     newBalls = [...newBalls, ...Array.from(Array(numberOfCoins - newBalls.length)).map(()=> getInitialBomb())]
   }
-
   if (lives <= 0) {
     newBombs = [];
     newBalls = [];

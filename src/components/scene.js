@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 
 import { MOVEMENT, getNewGameState, getGameStateFromLevel, BALL_RADIUS, getConfigByLevel } from '../game/core'
 import { registerListener } from '../utils'
@@ -108,6 +108,7 @@ const reducer = (state, { type, payload }) => {
 
 export default (containerSize) => {
   const [state, dispatch] = useReducer(reducer, containerSize, getInitialState)
+  const [timerId, setTimerId] = useState();
   const act = (type, payload) => dispatch({ type, payload })
   const {
     projectDistance,
@@ -132,11 +133,12 @@ export default (containerSize) => {
     const onKeyUp = ({ which }) => act(ACTION.KEY_UP, which)
     const tick = () => act(ACTION.TICK)
 
-    const timerId = setInterval(tick, UPDATE_EVERY)
+    const intervalId = setInterval(tick, UPDATE_EVERY)
+    setTimerId(intervalId)
     const unregisterKeydown = registerListener('keydown', onKeyDown)
     const unregisterKeyup = registerListener('keyup', onKeyUp)
     return () => {
-      clearInterval(timerId)
+      clearInterval(intervalId)
       unregisterKeydown()
       unregisterKeyup()
     }
@@ -150,6 +152,7 @@ export default (containerSize) => {
 
   if (isGameOver) {
     // gameOver(containerSize)
+    clearInterval(timerId)
   }
 
   return (
