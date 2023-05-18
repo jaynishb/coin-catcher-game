@@ -1,6 +1,6 @@
 import Vector from './vector'
 import { flatten, getRandomFrom, withoutElement, updateElement, randomRange, getRange } from '../utils'
-import { BombLevel, LEVELS } from './levels'
+import { BombLevel, InitialLevel, LEVELS } from './levels'
 
 const BLOCK_HEIGHT = 5
 const PADDLE_AREA = 1 / 3
@@ -48,7 +48,7 @@ export const getInitialPaddleAndBall = ({width, height}, level) => {
 
 export const getConfigByLevel = (collected) => {
   const levelsScores = Object.keys(LEVELS);
-  let levelConfig =  
+  let levelConfig = InitialLevel
   levelsScores.reverse().forEach((levelScore) => {
     if (collected > +levelScore) {
       levelConfig = LEVELS[levelScore];
@@ -73,7 +73,7 @@ const getInitialBomb = (width) => {
   }
 }
 
-export const getGameStateFromLevel = ({ lives, paddleWidth, speed, level }, containerSize) => {
+export const getGameStateFromLevel = ({ lives, speed, level }, containerSize) => {
   const size = {
     width: Math.ceil(containerSize.width / 20) + 1,
     height: Math.ceil(containerSize.height / 20)
