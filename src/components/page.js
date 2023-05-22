@@ -6,12 +6,14 @@ import Scene from './scene'
 import { registerListener, truncateEthAddress } from '../utils'
 import { Leaderboard } from './leaderboard'
 import axios from 'axios'
+import SelectWalletModal from './select-model'
 
 export default () => {
   const sceneContainer = useRef()
   const [size, setSize] = useState()
   const [center, setCenter] = useState()
   const [start, setStart] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   const { active, account, connector, activate, deactivate } = useWeb3React()
 
@@ -65,7 +67,7 @@ export default () => {
         <div className={`flex-1 flex items-center justify-center flex-col`}>
           <div className='sm:w-full md:w-1/3 m-2'>
             <Leaderboard start={start} />
-            <button className='my-2 w-full border-2 border-sky-500 hover:bg-sky-700 text-sky-500 hover:text-white-500 font-bold py-2 px-4 rounded' onClick={() => active ? disconnect() : connect()}> 
+            <button className='my-2 w-full border-2 border-sky-500 hover:bg-sky-700 text-sky-500 hover:text-white-500 font-bold py-2 px-4 rounded' onClick={() => active ? disconnect() : setIsOpen(true)}> 
               {!active ? 'Connect to wallet' : `Connected with ${truncateEthAddress(account)}`}
             </button>
             <button className='w-full bg-sky-500 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded' onClick={() => setStart(true)}> 
@@ -74,6 +76,7 @@ export default () => {
           </div>
         </div>
       )}
+      <SelectWalletModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
       <div className={`${!start ? 'hidden' : 'visible'} w-full h-full`} ref={sceneContainer}>
         {size && size.width && size.height && start && <Scene start={start} width={size.width} height={size.height} center={center} onGameStateChange={setStart} />}
       </div>

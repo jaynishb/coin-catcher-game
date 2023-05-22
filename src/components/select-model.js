@@ -1,23 +1,30 @@
 import { useWeb3React } from "@web3-react/core";
-import { connectors } from "./connectors";
+import { connectors } from "../wallet/Connector";
 import { Modal } from "./model";
 
-export default function SelectWalletModal({ isOpen, closeModal }) {
+export default function SelectWalletModal({ isOpen, onClose }) {
   const { activate } = useWeb3React();
 
   const setProvider = (type) => {
     window.localStorage.setItem("provider", type);
   };
 
+  const activateProvider = (provider) => {
+    setTimeout(() => {
+        activate(provider)
+    }, 2000)
+  }
+
   return (
-    <Modal isOpen={isOpen} onClose={closeModal} isCentered>
-      <h2>Select Wallet</h2>
+    <Modal title={'Select wallet to connect'} isOpen={isOpen} onClose={onClose} isCentered>
+        <div className="flex flex-col items-center w-full">
       <button
+        className=""
         variant="outline"
         onClick={() => {
-          activate(connectors.coinbaseWallet);
+          activateProvider(connectors.coinbaseWallet);
           setProvider("coinbaseWallet");
-          closeModal();
+          onClose();
         }}
         w="100%"
       >
@@ -35,9 +42,9 @@ export default function SelectWalletModal({ isOpen, closeModal }) {
       <button
         variant="outline"
         onClick={() => {
-          activate(connectors.walletConnect);
+          activateProvider(connectors.walletConnect);
           setProvider("walletConnect");
-          closeModal();
+        //   onClose();
         }}
         w="100%"
       >
@@ -55,9 +62,9 @@ export default function SelectWalletModal({ isOpen, closeModal }) {
       <button
         variant="outline"
         onClick={() => {
-          activate(connectors.injected);
+          activateProvider(connectors.injected);
           setProvider("injected");
-          closeModal();
+          onClose();
         }}
         w="100%"
       >
@@ -72,6 +79,7 @@ export default function SelectWalletModal({ isOpen, closeModal }) {
           <span>Metamask</span>
         </div>
       </button>
+      </div>
     </Modal>
   );
 }

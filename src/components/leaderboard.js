@@ -6,7 +6,7 @@ import { truncateEthAddress } from "../utils";
 const Row = ({ account, rank, highScore }) => {
     const { account: currentAccount } = useWeb3React()
   return (
-    <tr className={`${currentAccount == account ? 'bg-amber-500 px-2' : '' }`}>
+    <tr className={`${currentAccount == account ? 'bg-teal-500 px-2 text-white font-bold' : '' }`}>
       <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-4 text-left">
         {rank +1 }
       </th>
@@ -47,7 +47,7 @@ export const Leaderboard = ({ start }) => {
             <th className="px-6 bg-blWueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
               # Account
             </th>
-            <th className="px-6 bg-blueGray-50 text-blueGray-700 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-140-px"></th>
+            <th className="px-6 bg-blueGray-50 text-blueGray-700 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-140-px">Scores</th>
           </tr>
         </thead>
         <tbody>
