@@ -26,7 +26,7 @@ const RIGHT_DOWN = RIGHT.add(DOWN).normalize()
 
 const directions = [DOWN, RIGHT_DOWN, LEFT_DOWN]
 
-const getDirectionIndex = () => Math.floor(Math.random() * (directions.length - 1))
+const getDirectionIndex = () => Math.floor(Math.random() * (directions.length))
 
 export const getInitialPaddleAndBall = ({width, height}, level) => {
   const { numberOfCoins, numberOfBombs, paddleWidth } = getConfigByLevel(level)
@@ -170,11 +170,10 @@ export const getNewGameState = (state, movement, timespan) => {
     const ballTop = newBallCenter.y - radius
     const ballGoingDown = Math.abs(UP.angleBetween(oldDirection)) > 90
     const hitPaddle = ballGoingDown && ballBottom >= paddleTop && ballRight >= paddleLeft && ballLeft <= paddleRight && ballTop <= paddleBottom;
-    if (hitPaddle || ballBottom > size.width) {
+    if (hitPaddle || ballBottom > size.height) {
       level = hitPaddle ? level +1 : level
       return getInitialBall(size.width)
     }
-
     if (ballTop <= 0) return { ...ball, direction: withDirection(DOWN, oldDirection) }
     if (ballLeft <= 0) return { ...ball, direction: withDirection(RIGHT, oldDirection) }
     if (ballRight >= size.width) return { ...ball, direction: withDirection(LEFT, oldDirection) }
@@ -193,7 +192,7 @@ export const getNewGameState = (state, movement, timespan) => {
 
     const bombGoingDown = Math.abs(UP.angleBetween(oldDirection)) > 90
     const hitPaddle = bombGoingDown && bombBottom >= paddleTop && bombRight >= paddleLeft && bombLeft <= paddleRight && bombTop <= paddleBottom;
-    if (hitPaddle || bombBottom > size.width) {
+    if (hitPaddle || bombBottom > size.height) {
       lives = hitPaddle ? lives - 1 : lives
       return getInitialBomb(size.width)
     }
