@@ -70,7 +70,7 @@ export default () => {
             <button className='my-2 w-full border-2 border-sky-500 hover:bg-sky-700 text-sky-500 hover:text-white-500 font-bold py-2 px-4 rounded' onClick={() => active ? disconnect() : setIsOpen(true)}> 
               {!active ? 'Connect to wallet' : `Connected with ${truncateEthAddress(account)}`}
             </button>
-            <button className='w-full bg-sky-500 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded' onClick={() => setStart(true)}> 
+            <button disabled={!active} className={`w-full bg-sky-500 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded ${!active ? 'bg-gray-400  hover:bg-gray-700' : ''}`} onClick={() => setStart(true)}> 
               Start Game
             </button>
           </div>
