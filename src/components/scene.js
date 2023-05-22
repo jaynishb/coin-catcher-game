@@ -1,4 +1,5 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useMemo, useReducer, useState } from 'react'
+import axios from "axios";
 
 import { MOVEMENT, getNewGameState, getGameStateFromLevel, BALL_RADIUS, getConfigByLevel } from '../game/core'
 import { registerListener } from '../utils'
@@ -107,6 +108,7 @@ const reducer = (state, { type, payload }) => {
 }
 
 export default (containerSize) => {
+  // const { onGameStateChange, start, ...containerSize } = props;
   const [state, dispatch] = useReducer(reducer, containerSize, getInitialState)
   const [timerId, setTimerId] = useState();
   const act = (type, payload) => dispatch({ type, payload })
@@ -148,12 +150,18 @@ export default (containerSize) => {
   const viewWidth = projectDistance(width)
   const unit = projectDistance(BALL_RADIUS)
 
-  const isGameOver = lives <= 0;
+  const isGameOver = useMemo(() => lives <= 0, [lives]);
 
-  if (isGameOver) {
-    // gameOver(containerSize)
-    clearInterval(timerId)
+  const updateScore = () => {
+    // axios.get(`grab-it-api-5drf.vercel.app/api/score-save?userId=${userId}&score=${level}`).then(console.log);
   }
+
+  useEffect(() => {
+    if (isGameOver) {
+      containerSize.onGameStateChange(false)
+      clearInterval(timerId)
+    }
+  }, [isGameOver])
 
   return (
     <svg width={'100%'} height={'100vh'} className='scene'>
