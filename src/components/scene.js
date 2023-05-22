@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useReducer, useState } from 'react'
-import Tappable from 'react-tappable';
 import axios from "axios";
 
 import { MOVEMENT, getNewGameState, getGameStateFromLevel, BALL_RADIUS, getConfigByLevel } from '../game/core'
@@ -67,7 +66,8 @@ const ACTION = {
   KEY_DOWN: 'KEY_DOWN',
   KEY_UP: 'KEY_UP',
   TICK: 'TICK',
-  PADDEL_MOVE: 'PADDEL_MOVE'
+  PADDEL_MOVE: 'PADDEL_MOVE',
+  PADDEL_STOP: 'PADDEL_STOP'
 }
 
 const HANDLER = {
@@ -91,6 +91,10 @@ const HANDLER = {
       return { ...state, movement: MOVEMENT.RIGHT }
     }
     return state
+  },
+  [ACTION.PADDEL_STOP]: (state) => {
+    const newState = { ...state, movement: undefined }
+    return newState
   },
   [ACTION.KEY_UP]: (state, key) => {
     const newState = { ...state, movement: undefined }
@@ -148,6 +152,7 @@ export default (containerSize) => {
   useEffect(() => act(ACTION.CONTAINER_SIZE_CHANGE, containerSize), [containerSize])
 
   const movePaddel = (direction) => act(ACTION.PADDEL_MOVE, direction)
+  const stopPaddel = () => act(ACTION.PADDEL_STOP)
 
   useEffect(() => {
     const onKeyDown = ({ which }) => act(ACTION.KEY_DOWN, which)
@@ -191,14 +196,11 @@ export default (containerSize) => {
 
     const direction = touched.clientX > centerX ? MOVEMENT_DIRECTION.RIGHT : MOVEMENT_DIRECTION.LEFT
 
-    console.log(containerSize, touched, touched.clientX, touched.clientY);
-
     movePaddel(direction)
   }
 
   return (
-    <Tappable onTap={onTap}>
-    <svg width={'100%'} height={'100vh'} className='scene'>
+    <svg onTouchStart={onTap} onTouchEnd={stopPaddel} width={'100%'} height={'100vh'} className='scene'>
 
       <Level unit={unit} level={level} />
       {!isGameOver && <Lives containerWidth={viewWidth} unit={unit} lives={lives} />}
@@ -207,6 +209,5 @@ export default (containerSize) => {
       {!isGameOver && balls.map((ball, index) => <Ball key={index} {...projectVector(ball.center)} radius={unit} />)}
       {!isGameOver && bombs.map((bomb, index) => <Bomb key={index} {...projectVector(bomb.center)} radius={unit} />)}
     </svg>
-    </Tappable>
   )
 }
