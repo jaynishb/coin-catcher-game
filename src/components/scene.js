@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useState } from 'react'
+import Tappable from 'react-tappable';
 import axios from "axios";
 
 import { MOVEMENT, getNewGameState, getGameStateFromLevel, BALL_RADIUS, getConfigByLevel } from '../game/core'
@@ -16,6 +17,11 @@ import { useWeb3React } from '@web3-react/core';
 const MOVEMENT_KEYS = {
   LEFT: [65, 37],
   RIGHT: [68, 39]
+}
+
+const MOVEMENT_DIRECTION = {
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT'
 }
 
 const STOP_KEY = 32
@@ -60,7 +66,8 @@ const ACTION = {
   CONTAINER_SIZE_CHANGE: 'CONTAINER_SIZE_CHANGE',
   KEY_DOWN: 'KEY_DOWN',
   KEY_UP: 'KEY_UP',
-  TICK: 'TICK'
+  TICK: 'TICK',
+  PADDEL_MOVE: 'PADDEL_MOVE'
 }
 
 const HANDLER = {
@@ -73,6 +80,14 @@ const HANDLER = {
     if (MOVEMENT_KEYS.LEFT.includes(key)) {
       return { ...state, movement: MOVEMENT.LEFT }
     } else if (MOVEMENT_KEYS.RIGHT.includes(key)) {
+      return { ...state, movement: MOVEMENT.RIGHT }
+    }
+    return state
+  },
+  [ACTION.PADDEL_MOVE]: (state, direction) => {
+    if (MOVEMENT_DIRECTION.LEFT === direction) {
+      return { ...state, movement: MOVEMENT.LEFT }
+    } else if (MOVEMENT_DIRECTION.RIGHT === direction) {
       return { ...state, movement: MOVEMENT.RIGHT }
     }
     return state
@@ -132,6 +147,8 @@ export default (containerSize) => {
 
   useEffect(() => act(ACTION.CONTAINER_SIZE_CHANGE, containerSize), [containerSize])
 
+  const movePaddel = (direction) => act(ACTION.PADDEL_MOVE, direction)
+
   useEffect(() => {
     const onKeyDown = ({ which }) => act(ACTION.KEY_DOWN, which)
     const onKeyUp = ({ which }) => act(ACTION.KEY_UP, which)
@@ -166,7 +183,21 @@ export default (containerSize) => {
     }
   }, [isGameOver])
 
+  const onTap = (e) => {  
+    const { changedTouches } = e;
+    const [touched] = changedTouches;
+
+    const centerX = containerSize.width /2;
+
+    const direction = touched.clientX > centerX ? MOVEMENT_DIRECTION.RIGHT : MOVEMENT_DIRECTION.LEFT
+
+    console.log(containerSize, touched, touched.clientX, touched.clientY);
+
+    movePaddel(direction)
+  }
+
   return (
+    <Tappable onTap={onTap}>
     <svg width={'100%'} height={'100vh'} className='scene'>
 
       <Level unit={unit} level={level} />
@@ -176,5 +207,6 @@ export default (containerSize) => {
       {!isGameOver && balls.map((ball, index) => <Ball key={index} {...projectVector(ball.center)} radius={unit} />)}
       {!isGameOver && bombs.map((bomb, index) => <Bomb key={index} {...projectVector(bomb.center)} radius={unit} />)}
     </svg>
+    </Tappable>
   )
 }
