@@ -11,6 +11,7 @@ import Bomb from './bomb'
 import Lives from './lives'
 import GameOver from './game-over'
 import Vector from '../game/vector'
+import { useWeb3React } from '@web3-react/core';
 
 const MOVEMENT_KEYS = {
   LEFT: [65, 37],
@@ -109,6 +110,7 @@ const reducer = (state, { type, payload }) => {
 
 export default (containerSize) => {
   // const { onGameStateChange, start, ...containerSize } = props;
+  const { account } = useWeb3React()
   const [state, dispatch] = useReducer(reducer, containerSize, getInitialState)
   const [timerId, setTimerId] = useState();
   const act = (type, payload) => dispatch({ type, payload })
@@ -153,11 +155,12 @@ export default (containerSize) => {
   const isGameOver = useMemo(() => lives <= 0, [lives]);
 
   const updateScore = () => {
-    // axios.get(`grab-it-api-5drf.vercel.app/api/score-save?userId=${userId}&score=${level}`).then(console.log);
+    axios.get(`${process.env.REACT_APP_BASE_URL}/score-save?account=${account}&score=${level}`).then(console.log);
   }
 
   useEffect(() => {
     if (isGameOver) {
+      updateScore()
       containerSize.onGameStateChange(false)
       clearInterval(timerId)
     }

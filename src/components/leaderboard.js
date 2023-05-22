@@ -1,51 +1,40 @@
+import { useWeb3React } from "@web3-react/core";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { truncateEthAddress } from "../utils";
 
-const Row = ({ account, rank, points }) => {
+const Row = ({ account, rank, highScore }) => {
+    const { account: currentAccount } = useWeb3React()
   return (
-    <tr>
+    <tr className={`${currentAccount == account ? 'bg-amber-500 px-2' : '' }`}>
       <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-4 text-left">
-        {rank}
+        {rank +1 }
       </th>
       <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-4 ">
         {truncateEthAddress(account)}
       </td>
       <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-4">
         <div className="flex items-center">
-          <span className="mr-2">{points}</span>
+          <span className="mr-2">{highScore}</span>
         </div>
       </td>
     </tr>
   );
 };
 
-export const Leaderboard = () => {
-  const data = [
-    {
-      account: "0xunjkicelncoenrceorcneoicnoieipcomeoircme",
-      rank: 1,
-      points: 300,
-    },
-    {
-      account: "0xunjkicelncoenrceorcneoicnoieipcomeoircme",
-      rank: 2,
-      points: 290,
-    },
-    {
-      account: "0xunjkicelncoenrceorcneoicnoieipcomeoircme",
-      rank: 3,
-      points: 289,
-    },
-    {
-      account: "0xunjkicelncoenrceorcneoicnoieipcomeoircme",
-      rank: 4,
-      points: 153,
-    },
-    {
-      account: "0xunjkicelncoenrceorcneoicnoieipcomeoircme",
-      rank: 5,
-      points: 100,
-    },
-  ];
+export const Leaderboard = ({ start }) => {
+  const [data, setData] = useState([]);
+
+  const getLeaderboard = () => axios.get(`${process.env.REACT_APP_BASE_URL}/leaderboard`).then(({ data: { data: values } }) => setData(values));
+
+  useEffect(() => {
+    getLeaderboard()
+  }, []);
+
+  useEffect(() => {
+    console.log('startt called')
+    getLeaderboard()
+  }, [start])
 
   return (
     <div className="block w-full overflow-x-auto border-2 rounded">
@@ -62,8 +51,8 @@ export const Leaderboard = () => {
           </tr>
         </thead>
         <tbody>
-          {data.map((row) => (
-            <Row {...row} />
+          {data?.map((row, index) => (
+            <Row {...row} rank={index}/>
           ))}
         </tbody>
       </table>
