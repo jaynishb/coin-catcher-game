@@ -16,7 +16,7 @@ export const InitialLevel = {
 
 
 export const LEVELS = {
-  5: {
+  50: {
     paddleSpeed: PADDLE_SPEED,
     lives: 5,
     paddleWidth: PADDLE_WIDTH,
